@@ -88,7 +88,7 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
       {/* Modal */}
       {isModalOpen && (
         <div
-          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
+          className="fixed inset-0 z-[9999] bg-black/90 flex items-center justify-center p-4"
           onClick={() => setIsModalOpen(false)}
         >
           {/* Close Button */}

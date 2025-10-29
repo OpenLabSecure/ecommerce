@@ -44,14 +44,22 @@ const DiscountCode: React.FC<DiscountCodeProps> = ({ cart }) => {
       .map((p) => p.code!)
     codes.push(code.toString())
 
-    try {
+     try {
       await applyPromotions(codes)
+      // Limpiar el input solo si fue exitoso
+      if (input) {
+        input.value = ""
+      }
     } catch (e: any) {
-      setErrorMessage(e.message)
-    }
-
-    if (input) {
-      input.value = ""
+      // Personalizar el mensaje de error
+      const customErrorMessage = 
+        e.message?.toLowerCase().includes("not found") || 
+        e.message?.toLowerCase().includes("invalid") ||
+        e.message?.toLowerCase().includes("promotion")
+          ? "Código de promoción no válido o no encontrado. Por favor, verifica e intenta nuevamente."
+          : e.message || "Error al aplicar el código de promoción. Intenta nuevamente."
+      
+      setErrorMessage(customErrorMessage)
     }
   }
 
@@ -63,10 +71,10 @@ const DiscountCode: React.FC<DiscountCodeProps> = ({ cart }) => {
             <button
               onClick={() => setIsOpen(!isOpen)}
               type="button"
-              className="txt-medium text-ui-fg-interactive hover:text-ui-fg-interactive-hover"
+              className="txt-medium text-ui-fg-interactive hover:text-ui-fg-interactive-hover text-sm small:text-base"
               data-testid="add-discount-button"
             >
-              Add Promotion Code(s)
+              Agregar código de promoción
             </button>
 
             {/* <Tooltip content="You can add multiple promotion codes">
@@ -76,20 +84,22 @@ const DiscountCode: React.FC<DiscountCodeProps> = ({ cart }) => {
 
           {isOpen && (
             <>
-              <div className="flex w-full gap-x-2">
+              <div className="flex flex-col small:flex-row w-full gap-2 small:gap-x-2">
                 <Input
-                  className="size-full"
+                  className="flex-1 h-10"
                   id="promotion-input"
                   name="code"
                   type="text"
+                  placeholder="Ingresa tu código"
                   autoFocus={false}
                   data-testid="discount-input"
                 />
                 <SubmitButton
                   variant="secondary"
+                  className="w-full small:w-auto h-10 small:h-auto"
                   data-testid="discount-apply-button"
                 >
-                  Apply
+                  Aplicar
                 </SubmitButton>
               </div>
 
@@ -104,29 +114,32 @@ const DiscountCode: React.FC<DiscountCodeProps> = ({ cart }) => {
         {promotions.length > 0 && (
           <div className="w-full flex items-center">
             <div className="flex flex-col w-full">
-              <Heading className="txt-medium mb-2">
-                Promotion(s) applied:
+              <Heading className="txt-medium mb-2 text-sm small:text-base">
+                {promotions.length === 1 
+                  ? "Promoción aplicada:" 
+                  : "Promociones aplicadas:"}
               </Heading>
 
               {promotions.map((promotion) => {
                 return (
                   <div
                     key={promotion.id}
-                    className="flex items-center justify-between w-full max-w-full mb-2"
+                    className="flex items-center justify-between w-full max-w-full mb-2 bg-ui-bg-subtle rounded-lg p-2 small:p-3"
                     data-testid="discount-row"
                   >
-                    <Text className="flex gap-x-1 items-baseline txt-small-plus w-4/5 pr-1">
-                      <span className="truncate" data-testid="discount-code">
+                    <Text className="flex flex-col small:flex-row small:gap-x-2 small:items-baseline txt-small-plus w-4/5 pr-1">
+                      <span className="truncate mb-1 small:mb-0" data-testid="discount-code">
                         <Badge
                           color={promotion.is_automatic ? "green" : "grey"}
                           size="small"
                         >
                           {promotion.code}
                         </Badge>{" "}
-                        (
-                        {promotion.application_method?.value !== undefined &&
-                          promotion.application_method.currency_code !==
-                            undefined && (
+                        <span className="text-xs small:text-sm">
+                          (
+                          {promotion.application_method?.value !== undefined &&
+                            promotion.application_method.currency_code !==
+                              undefined && (
                             <>
                               {promotion.application_method.type ===
                               "percentage"
@@ -139,7 +152,8 @@ const DiscountCode: React.FC<DiscountCodeProps> = ({ cart }) => {
                                   })}
                             </>
                           )}
-                        )
+                          )
+                        </span>
                         {/* {promotion.is_automatic && (
                           <Tooltip content="This promotion is automatically applied">
                             <InformationCircleSolid className="inline text-zinc-400" />
@@ -149,7 +163,7 @@ const DiscountCode: React.FC<DiscountCodeProps> = ({ cart }) => {
                     </Text>
                     {!promotion.is_automatic && (
                       <button
-                        className="flex items-center"
+                        className="flex items-center p-2 hover:bg-ui-bg-subtle-hover rounded transition-colors"
                         onClick={() => {
                           if (!promotion.code) {
                             return
@@ -161,7 +175,7 @@ const DiscountCode: React.FC<DiscountCodeProps> = ({ cart }) => {
                       >
                         <Trash size={14} />
                         <span className="sr-only">
-                          Remove discount code from order
+                          Eliminar código de descuento del pedido
                         </span>
                       </button>
                     )}

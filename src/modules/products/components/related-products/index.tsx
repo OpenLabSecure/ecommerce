@@ -48,22 +48,47 @@ export default async function RelatedProducts({
 
   return (
     <div className="product-page-constraint">
-      <div className="flex flex-col items-center text-center mb-16">
-        <span className="text-base-regular text-gray-600 mb-6">
-          Related products
-        </span>
-        <p className="text-2xl-regular text-ui-fg-base max-w-lg">
-          You might also want to check out these products.
+      {/* Header Section - Mejorado */}
+      <div className="flex flex-col items-center text-center mb-12 lg:mb-16 space-y-4">
+        <div className="inline-flex items-center gap-3">
+          <div className="h-px w-12 bg-gradient-to-r from-transparent to-gray-300"></div>
+          <span className="text-sm font-medium text-gray-500 uppercase tracking-wider">
+            Productos Relacionados
+          </span>
+          <div className="h-px w-12 bg-gradient-to-l from-transparent to-gray-300"></div>
+        </div>
+        
+        <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 max-w-2xl">
+          También te podría interesar
+        </h2>
+        
+        <p className="text-base lg:text-lg text-gray-600 max-w-xl">
+          Descubre productos similares seleccionados especialmente para ti
         </p>
       </div>
 
-      <ul className="grid grid-cols-2 small:grid-cols-3 medium:grid-cols-4 gap-x-6 gap-y-8">
-        {products.map((product) => (
-          <li key={product.id}>
-            <Product region={region} product={product} />
+      {/* Products Grid - Mejorado con animaciones */}
+      <ul className="grid grid-cols-2 small:grid-cols-3 medium:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+        {products.map((product, index) => (
+          <li 
+            key={product.id}
+            className="group animate-fadeInUp"
+            style={{
+              animationDelay: `${index * 100}ms`,
+              animationFillMode: 'backwards'
+            }}
+          >
+            <div className="transition-transform duration-300 ease-out group-hover:scale-[1.02]">
+              <Product region={region} product={product} />
+            </div>
           </li>
         ))}
       </ul>
+
+      {/* Decorative Bottom Line */}
+      <div className="mt-12 lg:mt-16 flex justify-center">
+        <div className="h-1 w-24 bg-gradient-to-r from-transparent via-gray-300 to-transparent rounded-full"></div>
+      </div>
     </div>
   )
 }

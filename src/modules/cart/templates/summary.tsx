@@ -28,19 +28,38 @@ const Summary = ({ cart }: SummaryProps) => {
   const step = getCheckoutStep(cart)
 
   return (
-    <div className="flex flex-col gap-y-4">
-      <Heading level="h2" className="text-[2rem] leading-[2.75rem]">
-        Summary
-      </Heading>
-      <DiscountCode cart={cart} />
-      <Divider />
-      <CartTotals totals={cart} />
-      <LocalizedClientLink
-        href={"/checkout?step=" + step}
-        data-testid="checkout-button"
+    <div className="flex flex-col gap-y-4 w-full">
+      {/* Header - Responsive text size */}
+      <Heading 
+        level="h2" 
+        className="text-2xl leading-8 small:text-[2rem] small:leading-[2.75rem]"
       >
-        <Button className="w-full h-10">Go to checkout</Button>
-      </LocalizedClientLink>
+        Resumen
+      </Heading>
+
+      {/* Discount Code Section */}
+      <div className="w-full">
+        <DiscountCode cart={cart} />
+      </div>
+
+      <Divider />
+
+      {/* Cart Totals - Scrollable on small screens if needed */}
+      <div className="w-full overflow-x-auto">
+        <CartTotals totals={cart} />
+      </div>
+
+      {/* Checkout Button - Sticky on mobile */}
+      <div className="w-full sticky bottom-0 small:static bg-white py-4 small:py-0 -mx-4 px-4 small:mx-0 small:px-0 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] small:shadow-none">
+        <LocalizedClientLink
+          href={"/checkout?step=" + step}
+          data-testid="checkout-button"
+        >
+          <Button className="w-full h-10 small:h-12 text-sm small:text-base">
+            Ir al pago
+          </Button>
+        </LocalizedClientLink>
+      </div>
     </div>
   )
 }

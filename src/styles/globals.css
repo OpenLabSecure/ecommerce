@@ -128,16 +128,30 @@
 }
 
 .animation-delay-100 {
-  animation-delay: 0.1s;
+  animation-delay: 100ms;
   opacity: 0;
 }
 
 .animation-delay-200 {
-  animation-delay: 0.2s;
+  animation-delay: 200ms;
   opacity: 0;
 }
 
 .animation-delay-300 {
-  animation-delay: 0.3s;
+  animation-delay: 300ms;
   opacity: 0;
+}
+
+/* Opcional: Animación para el hover de las tarjetas */
+@keyframes pulse-subtle {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+  }
+}
+
+.group:hover .animate-pulse-subtle {
+  animation: pulse-subtle 1.5s ease-in-out infinite;
 }

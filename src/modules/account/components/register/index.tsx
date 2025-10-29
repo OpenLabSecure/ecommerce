@@ -1,12 +1,12 @@
 "use client"
 
+import { signup } from "@lib/data/customer"
+import ErrorMessage from "@modules/checkout/components/error-message"
+import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import { SubmitButton } from "@modules/checkout/components/submit-button"
+import { LOGIN_VIEW } from "@modules/account/templates/login-template"
 import { useActionState } from "react"
 import Input from "@modules/common/components/input"
-import { LOGIN_VIEW } from "@modules/account/templates/login-template"
-import ErrorMessage from "@modules/checkout/components/error-message"
-import { SubmitButton } from "@modules/checkout/components/submit-button"
-import LocalizedClientLink from "@modules/common/components/localized-client-link"
-import { signup } from "@lib/data/customer"
 
 type Props = {
   setCurrentView: (view: LOGIN_VIEW) => void
@@ -17,49 +17,59 @@ const Register = ({ setCurrentView }: Props) => {
 
   return (
     <div
-      className="max-w-sm flex flex-col items-center"
+      className="w-full flex flex-col items-center"
       data-testid="register-page"
     >
-      <h1 className="text-large-semi uppercase mb-6">
-        Become a Medusa Store Member
-      </h1>
-      <p className="text-center text-base-regular text-ui-fg-base mb-4">
-        Create your Medusa Store Member profile, and get access to an enhanced
-        shopping experience.
-      </p>
+      {/* Header */}
+      <div className="w-full text-center mb-6">
+        <h1 className="text-2xl small:text-3xl font-semibold mb-2">
+          Crear cuenta
+        </h1>
+        <p className="text-sm small:text-base text-ui-fg-subtle">
+          Crea tu perfil y accede a una experiencia de compra mejorada
+        </p>
+      </div>
+
+      {/* Form */}
       <form className="w-full flex flex-col" action={formAction}>
-        <div className="flex flex-col w-full gap-y-2">
+        <div className="flex flex-col w-full gap-y-4">
+          {/* Name Fields - Side by side on larger screens */}
+            <Input
+              label="Nombre"
+              name="first_name"
+              required
+              autoComplete="given-name"
+              data-testid="first-name-input"
+              type="text"
+            />
+            <Input
+              label="Apellido"
+              name="last_name"
+              required
+              autoComplete="family-name"
+              data-testid="last-name-input"
+              type="text"
+            />
+
           <Input
-            label="First name"
-            name="first_name"
-            required
-            autoComplete="given-name"
-            data-testid="first-name-input"
-          />
-          <Input
-            label="Last name"
-            name="last_name"
-            required
-            autoComplete="family-name"
-            data-testid="last-name-input"
-          />
-          <Input
-            label="Email"
+            label="Correo electrónico"
             name="email"
             required
             type="email"
             autoComplete="email"
             data-testid="email-input"
           />
+          
           <Input
-            label="Phone"
+            label="Teléfono"
             name="phone"
             type="tel"
             autoComplete="tel"
             data-testid="phone-input"
           />
+          
           <Input
-            label="Password"
+            label="Contraseña"
             name="password"
             required
             type="password"
@@ -67,38 +77,46 @@ const Register = ({ setCurrentView }: Props) => {
             data-testid="password-input"
           />
         </div>
+
         <ErrorMessage error={message} data-testid="register-error" />
-        <span className="text-center text-ui-fg-base text-small-regular mt-6">
-          By creating an account, you agree to Medusa Store&apos;s{" "}
+
+        {/* Terms and Conditions */}
+        <div className="text-center text-xs small:text-sm text-ui-fg-subtle mt-6 mb-4">
+          Al crear una cuenta, aceptas nuestra{" "}
           <LocalizedClientLink
             href="/content/privacy-policy"
-            className="underline"
+            className="text-ui-fg-interactive hover:text-ui-fg-interactive-hover underline transition-colors"
           >
-            Privacy Policy
+            Política de Privacidad
           </LocalizedClientLink>{" "}
-          and{" "}
+          y{" "}
           <LocalizedClientLink
             href="/content/terms-of-use"
-            className="underline"
+            className="text-ui-fg-interactive hover:text-ui-fg-interactive-hover underline transition-colors"
           >
-            Terms of Use
+            Términos de Uso
           </LocalizedClientLink>
           .
-        </span>
-        <SubmitButton className="w-full mt-6" data-testid="register-button">
-          Join
+        </div>
+
+        <SubmitButton 
+          className="w-full h-11 small:h-12 text-sm small:text-base" 
+          data-testid="register-button"
+        >
+          Crear cuenta
         </SubmitButton>
       </form>
-      <span className="text-center text-ui-fg-base text-small-regular mt-6">
-        Already a member?{" "}
+
+      {/* Login Link */}
+      <div className="text-center text-sm small:text-base text-ui-fg-subtle mt-6">
+        ¿Ya tienes una cuenta?{" "}
         <button
           onClick={() => setCurrentView(LOGIN_VIEW.SIGN_IN)}
-          className="underline"
+          className="text-ui-fg-interactive hover:text-ui-fg-interactive-hover font-medium transition-colors"
         >
-          Sign in
+          Inicia sesión aquí
         </button>
-        .
-      </span>
+      </div>
     </div>
   )
 }
