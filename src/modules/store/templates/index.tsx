@@ -6,13 +6,13 @@ import { SortOptions } from "@modules/store/components/refinement-list/sort-prod
 import CategoriesFilter from "@modules/store/components/refinement-list/filters/categories-filter.server"
 import PaginatedProducts from "./paginated-products"
 import { getCategoryIdFromHandle } from "@lib/data/categories/wrappers"
+import PriceFilter from "../components/refinement-list/filters/price-filter"
 
 const StoreTemplate = async({
   sortBy,
   page,
   countryCode,
   searchParams,
-  //[]
 }: {
   sortBy?: SortOptions
   page?: string
@@ -20,48 +20,93 @@ const StoreTemplate = async({
   searchParams?:{
     category?: string
     category_id?: string | string[]
-    //[k: string]: any
   }
 }) => {
   const pageNumber = page ? parseInt(page) : 1
   const sort = sortBy || "created_at"
 
-  // 1) Normaliza category_id a string (si sólo quieres 1 categoría)
-  let categoryId: string | undefined
+  let categoryIds: string[] | undefined
 
   if (searchParams?.category_id) {
-    categoryId = Array.isArray(searchParams.category_id)
-      ? searchParams.category_id[0]
-      : searchParams.category_id
+    categoryIds = Array.isArray(searchParams.category_id)
+      ? searchParams.category_id
+      : [searchParams.category_id]
   } else if (searchParams?.category) {
-    categoryId = await getCategoryIdFromHandle(searchParams.category)
+    const handles = Array.isArray(searchParams.category)
+      ? searchParams.category
+      : [searchParams.category]
+
+    const ids = await Promise.all(
+      handles.map((h) => getCategoryIdFromHandle(h))
+    )
+    categoryIds = ids.filter(Boolean) as string[]
   }
+
   return (
-    <div
-      className="flex flex-col small:flex-row small:items-start py-6 content-container"
-      data-testid="category-container"
-    >
-      {/* SIDEBAR */}
-      <div className="flex small:flex-col gap-12 py-4 mb-8 small:px-0 pl-6 small:min-w-[250px] small:ml-[1.675rem]">
-        <RefinementList sortBy={sort} />
-        <Suspense>
-          <CategoriesFilter />
-        </Suspense>
+    <div className="content-container py-6" data-testid="category-container">
+      {/* HEADER CON TÍTULO Y ORDENAMIENTO */}
+      <div className="mb-6 md:mb-8">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <h1 
+            className="text-2xl md:text-3xl font-semibold" 
+            data-testid="store-page-title"
+          >
+            Todos los productos
+          </h1>
+          
+          {/* Ordenamiento - visible en todas las pantallas */}
+          <div className="w-full md:w-auto">
+            <RefinementList sortBy={sort} />
+          </div>
+        </div>
       </div>
 
-      {/* CONTENIDO */}
-      <div className="w-full">
-        <div className="mb-8 text-2xl-semi">
-          <h1 data-testid="store-page-title">All products</h1>
-        </div>
-        <Suspense fallback={<SkeletonProductGrid />}>
-          <PaginatedProducts
-            sortBy={sort}
-            page={pageNumber}
-            countryCode={countryCode}
-            categoryId={categoryId}
-          />
-        </Suspense>
+      {/* LAYOUT PRINCIPAL: SIDEBAR + PRODUCTOS */}
+      <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
+        {/* SIDEBAR DE FILTROS - Izquierda en desktop, arriba en mobile */}
+        <aside className="w-full lg:w-64 xl:w-72 flex-shrink-0">
+          <div className="sticky top-4 space-y-4">
+            {/* Filtros en mobile: colapsables por defecto */}
+            <div className="lg:space-y-4">
+              <Suspense fallback={<FilterSkeleton />}>
+                <CategoriesFilter />
+              </Suspense>
+              
+              <Suspense fallback={<FilterSkeleton />}>
+                <PriceFilter />
+              </Suspense>
+            </div>
+          </div>
+        </aside>
+
+        {/* GRID DE PRODUCTOS - Derecha */}
+        <main className="flex-1 min-w-0">
+          <Suspense fallback={<SkeletonProductGrid />}>
+            <PaginatedProducts
+              sortBy={sort}
+              page={pageNumber}
+              countryCode={countryCode}
+              categoryIds={categoryIds}
+            />
+          </Suspense>
+        </main>
+      </div>
+    </div>
+  )
+}
+
+// Skeleton para los filtros mientras cargan
+function FilterSkeleton() {
+  return (
+    <div className="rounded-xl border border-neutral-200/60 dark:border-neutral-800/60 bg-white dark:bg-neutral-900 p-4 md:p-5 animate-pulse">
+      <div className="h-5 bg-neutral-200 dark:bg-neutral-800 rounded w-24 mb-4"></div>
+      <div className="space-y-3">
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="flex items-center gap-2">
+            <div className="h-4 w-4 bg-neutral-200 dark:bg-neutral-800 rounded"></div>
+            <div className="h-4 bg-neutral-200 dark:bg-neutral-800 rounded flex-1"></div>
+          </div>
+        ))}
       </div>
     </div>
   )

@@ -28,38 +28,57 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
 
   return (
     <>
-      <div
-        className="content-container flex flex-col small:flex-row small:items-start py-6 relative"
-        data-testid="product-container"
-      >        
-        <div className="block w-full relative">
-          <ImageGallery images={product?.images || []} />
+      {/* Main Product Section */}
+      <div className="content-container py-6 lg:py-12">
+        <div 
+          className="grid grid-cols-1 lg:grid-cols-[1fr_500px] gap-8 lg:gap-16 xl:gap-20"
+          data-testid="product-container"
+        >
+          {/* Image Gallery - Left Side */}
+          <div className="w-full order-1">
+            <div className="lg:sticky lg:top-20 transition-all duration-300">
+              <ImageGallery images={product?.images || []} />
+            </div>
+          </div>
+
+          {/* Product Details - Right Side */}
+          <div className="flex flex-col gap-y-6 order-2">
+            {/* Product Info */}
+            <section className="animate-fadeIn">
+              <ProductInfo product={product} />
+            </section>
+
+            {/* Product Actions - Highlighted Section */}
+            <section className="bg-gray-50 rounded-lg p-6 border border-gray-200 animate-fadeIn animation-delay-100">
+              <Suspense
+                fallback={
+                  <ProductActions
+                    disabled={true}
+                    product={product}
+                    region={region}
+                  />
+                }
+              >
+                <ProductActionsWrapper id={product.id} region={region} />
+              </Suspense>
+            </section>
+
+            {/* Product Tabs */}
+            <section className="animate-fadeIn animation-delay-200">
+              <ProductTabs product={product} />
+            </section>
+
+            {/* Onboarding CTA */}
+            <section className="mt-2 animate-fadeIn animation-delay-300">
+              <ProductOnboardingCta />
+            </section>
+          </div>
         </div>
-        <div>
-          <div className="flex flex-col small:sticky small:top-48 small:py-0 small:max-w-[300px] w-full py-8 gap-y-6">
-          <ProductInfo product={product} />
-          <ProductTabs product={product} />
-        </div>
-        <div className="flex flex-col small:sticky small:top-48 small:py-0 small:max-w-[300px] w-full py-8 gap-y-12">
-          <ProductOnboardingCta />
-          <Suspense
-            fallback={
-              <ProductActions
-                disabled={true}
-                product={product}
-                region={region}
-              />
-            }
-          >
-            <ProductActionsWrapper id={product.id} region={region} />
-          </Suspense>
-        </div>
-        </div>
-        
-        
       </div>
+
+      {/* Related Products Section */}
       <div
-        className="content-container my-16 small:my-32"
+        className="content-container my-16 lg:my-24 border-t border-gray-200 pt-16 lg:pt-24"
         data-testid="related-products-container"
       >
         <Suspense fallback={<SkeletonRelatedProducts />}>
