@@ -7,15 +7,18 @@ import { Button } from "@medusajs/ui"
 import { useElements, useStripe } from "@stripe/react-stripe-js"
 import React, { useState } from "react"
 import ErrorMessage from "../error-message"
+import { ShoppingBag, CreditCard, Lock } from "lucide-react"
 
 type PaymentButtonProps = {
   cart: HttpTypes.StoreCart
   "data-testid": string
+  className?: string
 }
 
 const PaymentButton: React.FC<PaymentButtonProps> = ({
   cart,
   "data-testid": dataTestId,
+  className,
 }) => {
   const notReady =
     !cart ||
@@ -33,14 +36,28 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
           notReady={notReady}
           cart={cart}
           data-testid={dataTestId}
+          className={className}
         />
       )
     case isManual(paymentSession?.provider_id):
       return (
-        <ManualTestPaymentButton notReady={notReady} data-testid={dataTestId} />
+        <ManualTestPaymentButton 
+          notReady={notReady} 
+          data-testid={dataTestId}
+          className={className}
+        />
       )
     default:
-      return <Button disabled>Select a payment method</Button>
+      return (
+        <Button 
+          disabled 
+          size="large"
+          className={`w-full h-12 small:h-14 text-base small:text-lg font-semibold ${className || ''}`}
+        >
+          <Lock className="mr-2" size={20} />
+          Selecciona un método de pago
+        </Button>
+      )
   }
 }
 
@@ -48,10 +65,12 @@ const StripePaymentButton = ({
   cart,
   notReady,
   "data-testid": dataTestId,
+  className,
 }: {
   cart: HttpTypes.StoreCart
   notReady: boolean
   "data-testid"?: string
+  className?: string
 }) => {
   const [submitting, setSubmitting] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
@@ -133,25 +152,60 @@ const StripePaymentButton = ({
   }
 
   return (
-    <>
+    <div className="space-y-4">
       <Button
         disabled={disabled || notReady}
         onClick={handlePayment}
         size="large"
         isLoading={submitting}
         data-testid={dataTestId}
+        className={`w-full h-12 small:h-14 text-base small:text-lg font-semibold bg-ui-bg-interactive hover:bg-ui-bg-interactive-hover transition-all duration-200 shadow-md hover:shadow-lg ${className || ''}`}
       >
-        Place order
+        {!submitting && (
+          <>
+            <CreditCard className="mr-2" size={20} />
+            <span>Realizar pedido</span>
+          </>
+        )}
+        {submitting && <span>Procesando pago...</span>}
       </Button>
-      <ErrorMessage
-        error={errorMessage}
-        data-testid="stripe-payment-error-message"
-      />
-    </>
+      
+      {errorMessage && (
+        <div className="animate-in slide-in-from-top-2 duration-300">
+          <ErrorMessage
+            error={errorMessage}
+            data-testid="stripe-payment-error-message"
+          />
+        </div>
+      )}
+
+      {/* Security badges */}
+      {!errorMessage && (
+        <div className="flex flex-wrap items-center justify-center gap-3 small:gap-4 pt-2">
+          <div className="flex items-center gap-1.5 text-xs small:text-sm text-ui-fg-muted">
+            <Lock size={14} className="text-green-600" />
+            <span>Pago seguro SSL</span>
+          </div>
+          <div className="hidden small:block w-px h-4 bg-ui-border-base" />
+          <div className="flex items-center gap-1.5 text-xs small:text-sm text-ui-fg-muted">
+            <CreditCard size={14} className="text-blue-600" />
+            <span>Stripe protegido</span>
+          </div>
+        </div>
+      )}
+    </div>
   )
 }
 
-const ManualTestPaymentButton = ({ notReady }: { notReady: boolean }) => {
+const ManualTestPaymentButton = ({ 
+  notReady,
+  "data-testid": dataTestId,
+  className,
+}: { 
+  notReady: boolean
+  "data-testid"?: string
+  className?: string
+}) => {
   const [submitting, setSubmitting] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
@@ -167,26 +221,48 @@ const ManualTestPaymentButton = ({ notReady }: { notReady: boolean }) => {
 
   const handlePayment = () => {
     setSubmitting(true)
-
     onPaymentCompleted()
   }
 
   return (
-    <>
+    <div className="space-y-4">
       <Button
         disabled={notReady}
         isLoading={submitting}
         onClick={handlePayment}
         size="large"
-        data-testid="submit-order-button"
+        data-testid={dataTestId}
+        className={`w-full h-12 small:h-14 text-base small:text-lg font-semibold bg-ui-bg-interactive hover:bg-ui-bg-interactive-hover transition-all duration-200 shadow-md hover:shadow-lg ${className || ''}`}
       >
-        Place order
+        {!submitting && (
+          <>
+            <ShoppingBag className="mr-2" size={20} />
+            <span>Realizar pedido</span>
+          </>
+        )}
+        {submitting && <span>Procesando pedido...</span>}
       </Button>
-      <ErrorMessage
-        error={errorMessage}
-        data-testid="manual-payment-error-message"
-      />
-    </>
+      
+      {errorMessage && (
+        <div className="animate-in slide-in-from-top-2 duration-300">
+          <ErrorMessage
+            error={errorMessage}
+            data-testid="manual-payment-error-message"
+          />
+        </div>
+      )}
+
+      {/* Test mode indicator */}
+      {!errorMessage && (
+        <div className="flex items-center justify-center gap-2 pt-2">
+          <div className="px-3 py-1.5 bg-yellow-50 border border-yellow-200 rounded-full">
+            <span className="text-xs small:text-sm text-yellow-800 font-medium">
+              🧪 Modo de prueba
+            </span>
+          </div>
+        </div>
+      )}
+    </div>
   )
 }
 

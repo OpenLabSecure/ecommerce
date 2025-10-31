@@ -1,6 +1,6 @@
 import { HttpTypes } from "@medusajs/types"
 import Input from "@modules/common/components/input"
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import CountrySelect from "../country-select"
 
 const BillingAddress = ({ cart }: { cart: HttpTypes.StoreCart | null }) => {
@@ -16,6 +16,16 @@ const BillingAddress = ({ cart }: { cart: HttpTypes.StoreCart | null }) => {
     "billing_address.phone": cart?.billing_address?.phone || "",
   })
 
+  // Debug: Verificar que la región tenga países
+  useEffect(() => {
+    if (cart?.region) {
+      console.log("Cart region:", cart.region)
+      console.log("Countries in region:", cart.region.countries)
+    } else {
+      console.warn("No region found in cart")
+    }
+  }, [cart])
+
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLInputElement | HTMLSelectElement
@@ -25,6 +35,15 @@ const BillingAddress = ({ cart }: { cart: HttpTypes.StoreCart | null }) => {
       ...formData,
       [e.target.name]: e.target.value,
     })
+  }
+
+  // Mostrar mensaje si no hay región
+  if (!cart?.region) {
+    return (
+      <div className="text-red-500 p-4">
+        No region available. Please ensure your cart has a valid region.
+      </div>
+    )
   }
 
   return (
@@ -80,11 +99,13 @@ const BillingAddress = ({ cart }: { cart: HttpTypes.StoreCart | null }) => {
           autoComplete="address-level2"
           value={formData["billing_address.city"]}
           onChange={handleChange}
+          required
+          data-testid="billing-city-input"
         />
         <CountrySelect
           name="billing_address.country_code"
           autoComplete="country"
-          region={cart?.region}
+          region={cart.region}
           value={formData["billing_address.country_code"]}
           onChange={handleChange}
           required

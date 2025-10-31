@@ -1,40 +1,52 @@
 import { HttpTypes } from "@medusajs/types"
-import { forwardRef, useMemo } from "react"
+import { forwardRef, useImperativeHandle, useMemo, useRef } from "react"
 import NativeSelect, {
   NativeSelectProps,
 } from "@modules/common/components/native-select"
 
 const CountrySelect = forwardRef<
   HTMLSelectElement,
-  Omit<NativeSelectProps, "children"> & {
-    region?: HttpTypes.StoreRegion | null
+  NativeSelectProps & {
+    region?: HttpTypes.StoreRegion
   }
->(({ region, defaultValue, ...props }, ref) => {
+>(({ placeholder = "Country", region, defaultValue, ...props }, ref) => {
+  const innerRef = useRef<HTMLSelectElement>(null)
+
+  useImperativeHandle<HTMLSelectElement | null, HTMLSelectElement | null>(
+    ref,
+    () => innerRef.current
+  )
+
   const countryOptions = useMemo(() => {
-    if (!region?.countries) {
+    if (!region || !region.countries || region.countries.length === 0) {
+      console.warn("No countries available in region:", region)
       return []
     }
 
-    return region.countries
-      .map((country) => ({
-        value: country.iso_2,
-        label: country.display_name,
-      }))
-      .sort((a, b) => a.label.localeCompare(b.label))
+    return region.countries.map((country) => ({
+      value: country.iso_2,
+      label: country.display_name,
+    }))
   }, [region])
 
-  // Debug: mostrar en consola
-  console.log("CountrySelect - Region:", region?.name)
-  console.log("CountrySelect - Countries:", countryOptions)
-
   return (
-    <NativeSelect ref={ref} defaultValue={defaultValue} {...props}>
-      <option value="">Selecciona un país</option>
-      {countryOptions.map(({ value, label }) => (
-        <option key={value} value={value}>
-          {label}
+    <NativeSelect
+      ref={innerRef}
+      placeholder={placeholder}
+      defaultValue={defaultValue}
+      {...props}
+    >
+      {countryOptions.length === 0 ? (
+        <option value="" disabled>
+          No countries available
         </option>
-      ))}
+      ) : (
+        countryOptions.map(({ value, label }, index) => (
+          <option key={index} value={value}>
+            {label}
+          </option>
+        ))
+      )}
     </NativeSelect>
   )
 })

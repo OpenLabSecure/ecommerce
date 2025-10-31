@@ -53,6 +53,16 @@ const nextConfig = {
         : []),
     ],
   },
+  images: {
+    remotePatterns: [
+      // Backblaze S3 endpoint (subidas vía File Module)
+      { protocol: "https", hostname: "s3.us-west-004.backblazeb2.com", pathname: "/**" },
+      // Backblaze download endpoint (f###) que te está saliendo ahora
+      { protocol: "https", hostname: "f004.backblazeb2.com", pathname: "/**" },
+      // (Si usas también los public images de Medusa)
+      { protocol: "https", hostname: "medusa-public-images.s3.eu-west-1.amazonaws.com", pathname: "/**" },
+    ],
+  },
 }
 
 module.exports = nextConfig
