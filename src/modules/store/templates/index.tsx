@@ -20,6 +20,8 @@ const StoreTemplate = async({
   searchParams?:{
     category?: string
     category_id?: string | string[]
+    min_price?: string
+    max_price?: string
   }
 }) => {
   const pageNumber = page ? parseInt(page) : 1
@@ -41,6 +43,15 @@ const StoreTemplate = async({
     )
     categoryIds = ids.filter(Boolean) as string[]
   }
+
+  // Estraer parámetros de precio si existen
+  const minPrice = searchParams?.min_price
+  ? parseFloat(searchParams.min_price)
+  : undefined
+
+  const maxPrice = searchParams?.max_price
+  ? parseFloat(searchParams.max_price)
+  : undefined
 
   return (
     <div className="content-container py-6" data-testid="category-container">
@@ -87,6 +98,8 @@ const StoreTemplate = async({
               page={pageNumber}
               countryCode={countryCode}
               categoryIds={categoryIds}
+              minPrice={minPrice}
+              maxPrice={maxPrice}
             />
           </Suspense>
         </main>

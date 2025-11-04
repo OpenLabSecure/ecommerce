@@ -134,3 +134,100 @@ export const listProductsWithSort = async ({
     queryParams,
   }
 }
+
+
+
+// Agregar esta función al final del archivo existente
+
+/**
+ * Busca productos por término de búsqueda
+ */
+export const searchProducts = async ({
+  query,
+  page = 1,
+  limit = 12,
+  countryCode,
+  regionId,
+}: {
+  query: string
+  page?: number
+  limit?: number
+  countryCode?: string
+  regionId?: string
+}): Promise<{
+  response: { products: HttpTypes.StoreProduct[]; count: number }
+  nextPage: number | null
+}> => {
+  if (!countryCode && !regionId) {
+    throw new Error("Country code or region ID is required")
+  }
+
+  const offset = (page - 1) * limit
+
+  let region: HttpTypes.StoreRegion | undefined | null
+
+  if (countryCode) {
+    region = await getRegion(countryCode)
+  } else if (regionId) {
+    region = await retrieveRegion(regionId)
+  }
+
+  if (!region) {
+    console.error("❌ No se encontró la región")
+    return {
+      response: { products: [], count: 0 },
+      nextPage: null,
+    }
+  }
+
+  const headers = {
+    ...(await getAuthHeaders()),
+  }
+
+  const next = {
+    ...(await getCacheOptions("products")),
+  }
+
+  // 🔍 Debug: Ver qué parámetros se están enviando
+  const queryParams = {
+    q: query,
+    limit,
+    offset,
+    region_id: region.id,
+    fields:
+      "*variants.calculated_price,+variants.inventory_quantity,+metadata,+tags",
+  }
+
+  console.log("🔍 Búsqueda con parámetros:", queryParams)
+
+  try {
+    const result = await sdk.client.fetch<{
+      products: HttpTypes.StoreProduct[]
+      count: number
+    }>(`/store/products`, {
+      method: "GET",
+      query: queryParams,
+      headers,
+      next,
+      cache: "no-store",
+    })
+
+    console.log(`✅ Búsqueda exitosa: ${result.count} productos encontrados`)
+
+    const nextPage = result.count > offset + limit ? page + 1 : null
+
+    return {
+      response: {
+        products: result.products || [],
+        count: result.count || 0,
+      },
+      nextPage,
+    }
+  } catch (error) {
+    console.error("❌ Error en búsqueda:", error)
+    return {
+      response: { products: [], count: 0 },
+      nextPage: null,
+    }
+  }
+}

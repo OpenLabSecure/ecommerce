@@ -21,8 +21,8 @@ export default async function PaginatedProducts({
   categoryIds, // 👈 ahora acepta múltiples categorías
   productsIds,
   countryCode,
-  min_price,
-    max_price
+  minPrice,
+  maxPrice
 }: {
   sortBy?: SortOptions
   page: number
@@ -30,8 +30,8 @@ export default async function PaginatedProducts({
   categoryIds?: string[]           // 👈 array
   productsIds?: string[]
   countryCode: string,
-  min_price?: string
-    max_price?: string
+  minPrice?: number
+  maxPrice?: number
 }) {
   const queryParams: PaginatedProductsParams = {
     limit: PRODUCT_LIMIT,          // 👈 usa la constante
@@ -47,6 +47,15 @@ export default async function PaginatedProducts({
 
   if (productsIds?.length) {
     queryParams.id = productsIds
+  }
+
+  if (  minPrice !== undefined ) {
+    queryParams.order = `price:>=${minPrice}`
+  }
+  if (  maxPrice !== undefined ) {
+    queryParams.order = queryParams.order
+      ? `${queryParams.order},price:<=${maxPrice}`
+      : `price:<=${maxPrice}`
   }
 
   // Mapea orden si lo necesitas (puedes dejar que lo resuelva listProductsWithSort también)

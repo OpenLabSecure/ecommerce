@@ -1,6 +1,5 @@
 "use client"
 
-import { ChangeEvent } from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import SortProducts, { SortOptions } from "./sort-products"
 
