@@ -53,6 +53,9 @@ export const listProducts = async ({
     ...(await getCacheOptions("products")),
   }
 
+  // CAMBIO PRINCIPAL: Configuración de caché
+  const isDevelopment = process.env.NODE_ENV === "development"
+
   return sdk.client
     .fetch<{ products: HttpTypes.StoreProduct[]; count: number }>(
       `/store/products`,
@@ -67,8 +70,10 @@ export const listProducts = async ({
           ...queryParams,
         },
         headers,
-        next,
-        cache: "force-cache",
+        next: isDevelopment
+          ? { revalidate: 0 } // Sin caché en desarrollo
+          : { revalidate: 60, tags: ["products"] }, // 60 segundos en producción
+        cache: isDevelopment ? "no-store" : "force-cache",
       }
     )
     .then(({ products, count }) => {
