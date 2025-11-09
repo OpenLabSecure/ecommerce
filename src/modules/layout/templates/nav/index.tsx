@@ -27,7 +27,8 @@ export default async function Nav() {
             </LocalizedClientLink>
 
             <div className="h-full">
-              <SideMenu regions={regions} />
+              {/* <SideMenu regions={regions} /> */}
+              <SideMenu  />
             </div>
           </div>
 

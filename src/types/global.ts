@@ -87,6 +87,7 @@ export interface ProductCategoryF {
   updated_at: string;
   deleted_at?: string | null; active?: boolean;
   internal?: boolean;
+  category_children?: ProductCategoryF[];
 }
 
 
