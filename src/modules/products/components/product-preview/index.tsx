@@ -1,19 +1,21 @@
 import { Text } from "@medusajs/ui"
 import { listProducts } from "@lib/data/products"
-import { getProductPrice } from "@lib/util/get-product-price"
-import { HttpTypes } from "@medusajs/types"
-import LocalizedClientLink from "@modules/common/components/localized-client-link"
-import Thumbnail from "../thumbnail"
 import PreviewPrice from "./price"
-
+import { getProductPrice } from "@lib/util/get-product-price"
+import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import { HttpTypes } from "@medusajs/types"
+import Thumbnail from "../thumbnail"
+import { VariantPrice } from "types/global"
 export default async function ProductPreview({
   product,
   isFeatured,
   region,
+  price,
 }: {
   product: HttpTypes.StoreProduct
   isFeatured?: boolean
   region: HttpTypes.StoreRegion
+  price?: VariantPrice
 }) {
   // const pricedProduct = await listProducts({
   //   regionId: region.id,
@@ -24,9 +26,9 @@ export default async function ProductPreview({
   //   return null
   // }
 
-  const { cheapestPrice } = getProductPrice({
-    product,
-  })
+  // Si se recibe `price` desde el padre, lo usamos; en caso contrario,
+  // calculamos el precio más barato con la utilidad existente.
+  const computedPrice = price ?? getProductPrice({ product }).cheapestPrice
 
   return (
     <LocalizedClientLink href={`/products/${product.handle}`} className="group">
@@ -42,7 +44,7 @@ export default async function ProductPreview({
             {product.title}
           </Text>
           <div className="flex items-center gap-x-2">
-            {cheapestPrice && <PreviewPrice price={cheapestPrice} />}
+            {computedPrice && <PreviewPrice price={computedPrice} />}
           </div>
         </div>
       </div>

@@ -15,6 +15,10 @@ export const convertToLocale = ({
   maximumFractionDigits,
   locale = "en-US",
 }: ConvertToLocaleParams) => {
+  // Si el 'amount' no es un número, no podemos formatearlo.
+  if (typeof amount !== "number") {
+    return "" // O puedes devolver null o un guion "-", como prefieras.
+  }
   return currency_code && !isEmpty(currency_code)
     ? new Intl.NumberFormat(locale, {
         style: "currency",
