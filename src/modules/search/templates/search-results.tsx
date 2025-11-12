@@ -4,6 +4,7 @@ import { Pagination } from "@modules/store/components/pagination"
 import { getFilteredProducts } from "@lib/data/products-filter"
 import ProductPreview from "@modules/products/components/product-preview"
 import { SortOptions } from "@modules/store/components/refinement-list/sort-products"
+import { convertToLocale } from "@lib/util/money"
 
 const PRODUCT_LIMIT = 12
 
@@ -79,6 +80,42 @@ export default async function SearchResults({
       )
     }
 
+    // Transformar productos para proporcionar un precio preformateado al preview
+    const transformedProducts = products.map((p: any) => {
+      if (!p.price_range) return p
+
+      const cheapestVariant = {
+        calculated_price: {
+          calculated_amount: p.price_range.min,
+          original_amount: p.price_range.max ?? p.price_range.min,
+          currency_code: region.currency_code,
+          calculated_price: { price_list_type: "default" },
+        },
+      }
+
+      const previewPrice = {
+        calculated_price_number: p.price_range.min,
+        calculated_price: convertToLocale({
+          amount: p.price_range.min,
+          currency_code: region.currency_code,
+        }),
+        original_price_number: p.price_range.max ?? p.price_range.min,
+        original_price: convertToLocale({
+          amount: p.price_range.max ?? p.price_range.min,
+          currency_code: region.currency_code,
+        }),
+        currency_code: region.currency_code,
+        price_type: "default",
+        percentage_diff: "0%",
+      }
+
+      return {
+        ...p,
+        variants: [cheapestVariant],
+        _preview_price: previewPrice,
+      }
+    })
+
     return (
       <>
         {/* Contador de resultados */}
@@ -88,9 +125,9 @@ export default async function SearchResults({
 
         {/* Grid de productos */}
         <ul className="grid grid-cols-2 small:grid-cols-3 medium:grid-cols-4 gap-x-6 gap-y-8">
-          {products.map((product) => (
+          {transformedProducts.map((product) => (
             <li key={product.id}>
-              <ProductPreview product={product} region={region} />
+              <ProductPreview product={product} region={region} price={product._preview_price} />
             </li>
           ))}
         </ul>
