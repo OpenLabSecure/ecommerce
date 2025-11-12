@@ -39,7 +39,7 @@ export default async function Footer() {
                     rel="noreferrer"
                     className="hover:text-ui-fg-base"
                   >
-                    991117845
+                    +51 991117845
                   </a>
                 </li>
                 <li>
@@ -49,7 +49,27 @@ export default async function Footer() {
                     rel="noreferrer"
                     className="hover:text-ui-fg-base"
                   >
-                    Lun- Sab 9:00am a 6:00pm
+                    Lun-Sab 9:00am a 6:00pm
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://github.com/medusajs/nextjs-starter-medusa"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="hover:text-ui-fg-base"
+                  >
+                    servicioalcliente@rashperu.com
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://github.com/medusajs/nextjs-starter-medusa"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="hover:text-ui-fg-base"
+                  >
+                    gerenciassac@rashperu.com
                   </a>
                 </li>
               </ul>
@@ -74,7 +94,7 @@ export default async function Footer() {
                     rel="noreferrer"
                     className="hover:text-ui-fg-base"
                   >
-                    Canales de atencion
+                    Tiendas
                   </a>
                 </li>
                 <li>
@@ -84,13 +104,33 @@ export default async function Footer() {
                     rel="noreferrer"
                     className="hover:text-ui-fg-base"
                   >
-                    Compra Facil y Seguro
+                    Canales de atención
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://github.com/medusajs/nextjs-starter-medusa"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="hover:text-ui-fg-base"
+                  >
+                    Compra fácil y seguro
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://github.com/medusajs/nextjs-starter-medusa"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="hover:text-ui-fg-base"
+                  >
+                    Métodos de pago
                   </a>
                 </li>
               </ul>
             </div>
             <div className="flex flex-col gap-y-2">
-              <span className="txt-small-plus txt-ui-fg-base">Sobre nosotros</span>
+              <span className="txt-small-plus txt-ui-fg-base">Te informamos</span>
               <ul className="grid grid-cols-1 gap-y-2 text-ui-fg-subtle txt-small">
                 <li>
                   <a
@@ -99,7 +139,7 @@ export default async function Footer() {
                     rel="noreferrer"
                     className="hover:text-ui-fg-base"
                   >
-                    ¿Quienes somos?
+                    Nuestras tiendas
                   </a>
                 </li>
                 <li>
@@ -109,7 +149,7 @@ export default async function Footer() {
                     rel="noreferrer"
                     className="hover:text-ui-fg-base"
                   >
-                    Canales de atencion
+                    Cobertura de delivery
                   </a>
                 </li>
                 <li>
@@ -119,14 +159,9 @@ export default async function Footer() {
                     rel="noreferrer"
                     className="hover:text-ui-fg-base"
                   >
-                    Compra Facil y Seguro
+                    Certficado de garantía
                   </a>
                 </li>
-              </ul>
-            </div>
-            <div className="flex flex-col gap-y-2">
-              <span className="txt-small-plus txt-ui-fg-base">Sobre nosotros</span>
-              <ul className="grid grid-cols-1 gap-y-2 text-ui-fg-subtle txt-small">
                 <li>
                   <a
                     href="https://github.com/medusajs"
@@ -134,7 +169,7 @@ export default async function Footer() {
                     rel="noreferrer"
                     className="hover:text-ui-fg-base"
                   >
-                    ¿Quienes somos?
+                    Retiros preventivos
                   </a>
                 </li>
                 <li>
@@ -144,7 +179,7 @@ export default async function Footer() {
                     rel="noreferrer"
                     className="hover:text-ui-fg-base"
                   >
-                    Canales de atencion
+                    Téminos y condiciones
                   </a>
                 </li>
                 <li>
@@ -154,14 +189,9 @@ export default async function Footer() {
                     rel="noreferrer"
                     className="hover:text-ui-fg-base"
                   >
-                    Compra Facil y Seguro
+                    Políticas de privacidad
                   </a>
                 </li>
-              </ul>
-            </div>
-            <div className="flex flex-col gap-y-2">
-              <span className="txt-small-plus txt-ui-fg-base">Sobre nosotros</span>
-              <ul className="grid grid-cols-1 gap-y-2 text-ui-fg-subtle txt-small">
                 <li>
                   <a
                     href="https://github.com/medusajs"
@@ -169,7 +199,7 @@ export default async function Footer() {
                     rel="noreferrer"
                     className="hover:text-ui-fg-base"
                   >
-                    ¿Quienes somos?
+                    Póliticas de uso de cookies
                   </a>
                 </li>
                 <li>
@@ -179,7 +209,32 @@ export default async function Footer() {
                     rel="noreferrer"
                     className="hover:text-ui-fg-base"
                   >
-                    Canales de atencion
+                    Póliticas de cambios y develouciones
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <div className="flex flex-col gap-y-2">
+              <span className="txt-small-plus txt-ui-fg-base">Servicios al cliente</span>
+              <ul className="grid grid-cols-1 gap-y-2 text-ui-fg-subtle txt-small">
+                <li>
+                  <a
+                    href="https://github.com/medusajs"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="hover:text-ui-fg-base"
+                  >
+                    Factura electrónico
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://docs.medusajs.com"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="hover:text-ui-fg-base"
+                  >
+                    Ventas corporativas
                   </a>
                 </li>
                 <li>
@@ -189,7 +244,42 @@ export default async function Footer() {
                     rel="noreferrer"
                     className="hover:text-ui-fg-base"
                   >
-                    Compra Facil y Seguro
+                    Disponibilidad de productos
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <div className="flex flex-col gap-y-2">
+              <span className="txt-small-plus txt-ui-fg-base">Destacados</span>
+              <ul className="grid grid-cols-1 gap-y-2 text-ui-fg-subtle txt-small">
+                <li>
+                  <a
+                    href="https://github.com/medusajs"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="hover:text-ui-fg-base"
+                  >
+                    Mis compras
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://docs.medusajs.com"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="hover:text-ui-fg-base"
+                  >
+                    Mundo Laptop
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://github.com/medusajs/nextjs-starter-medusa"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="hover:text-ui-fg-base"
+                  >
+                    Mundo Servidores
                   </a>
                 </li>
               </ul>

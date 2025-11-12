@@ -6,6 +6,7 @@ import { useActionState } from "react"
 import { login } from "@lib/data/customer"
 import { SubmitButton } from "@modules/checkout/components/submit-button"
 import { LOGIN_VIEW } from "@modules/account/templates/login-template"
+import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
 type Props = {
   setCurrentView: (view: LOGIN_VIEW) => void
@@ -53,11 +54,16 @@ const Login = ({ setCurrentView }: Props) => {
 
         {/* Forgot Password Link */}
         <div className="flex justify-end mt-2">
-          <button
+            <button
             type="button"
             className="text-sm text-ui-fg-interactive hover:text-ui-fg-interactive-hover transition-colors"
           >
+            <LocalizedClientLink
+            href="/auth/forgot-password"
+            className="text-ui-fg-interactive hover:text-ui-fg-interactive-hover underline transition-colors"
+          >
             ¿Olvidaste tu contraseña?
+          </LocalizedClientLink>
           </button>
         </div>
 
