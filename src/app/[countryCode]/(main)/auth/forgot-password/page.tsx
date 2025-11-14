@@ -1,72 +1,79 @@
+
 "use client"
 
-import { useState } from "react";
+import { useActionState, useState } from "react"
+import { requestPasswordReset } from "@lib/data/customer"
+import Input from "@modules/common/components/input"
+import { SubmitButton } from "@modules/checkout/components/submit-button"
+import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import ErrorMessage from "@modules/checkout/components/error-message"
 
 export default function ForgotPasswordPage() {
-    const [email, setEmail] = useState("");
-    const [status, setStatus] = useState<"idle" | "loading" | "ok" | "error">("idle");
-    const [message, setMessage] = useState<string | null>(null);
+  const [message, formAction] = useActionState(requestPasswordReset, null)
+  const [showSuccess, setShowSuccess] = useState(false)
 
+  // Si no hay error (message es null), significa que fue exitoso
+  const isSuccess = message === null && showSuccess
 
-    async function onSubmit(e: React.FormEvent) {
-        e.preventDefault();
-        setStatus("loading");
+  return (
+    <main className="mx-auto max-w-md px-6 py-10">
+      <div className="mb-6">
+        <h1 className="mb-2 text-2xl font-bold">¿Olvidaste tu contraseña?</h1>
+        <p className="text-sm text-ui-fg-subtle">
+          Ingresa tu correo electrónico y, si existe una cuenta asociada, te
+          enviaremos un enlace para restablecer tu contraseña.
+        </p>
+      </div>
 
-        try {
-            const res = await fetch("/api/auth/password-reset",{
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ email }),
-            });
+      <form 
+        action={async (formData) => {
+          const result = await formAction(formData)
+          if (result === null) {
+            setShowSuccess(true)
+          }
+        }} 
+        className="space-y-4"
+      >
+        <Input
+          label="Correo electrónico"
+          name="email"
+          type="email"
+          autoComplete="email"
+          required
+          data-testid="email-input"
+        />
 
-            if (!res.ok) throw new Error();
-            setStatus("ok");
-            setMessage("Si existe una cuenta con ese correo, se ha enviado un enlace de restablecimiento de contraseña.");
-        } catch (error: any) {
-            setStatus("error");
-            setMessage(error?.message || "Ocurrió un error. Por favor, inténtalo de nuevo.");
-        }
-    }
+        <SubmitButton 
+          className="w-full"
+          data-testid="submit-button"
+        >
+          Enviar enlace de restablecimiento
+        </SubmitButton>
 
-    return (
-        <main className="mx-auto max-w-md px-6 py-10">
-            <h1 className="text-2xl font-bold mb-6">¿Olvidaste tu contraseña?</h1>
-            <p className="text-sm text-gray-600 md-6">
-                Ingresa tu correo electrónico a continuación y te enviaremos un enlace para restablecer tu contraseña.
-            </p>
+        {/* Mostrar error si existe */}
+        <ErrorMessage error={message} data-testid="error-message" />
 
-            <form onSubmit={onSubmit} className="spacce-y-4">
-                <label className="block">
-                    <span className="text-sm font-medium">Correo Electrónico</span>
-                    <input 
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e)=> setEmail(e.target.value)}
-                    className="mt-1 w-full rounded-lg border px-3 py-2"
-                    placeholder="tucorreo@ejemplo.com"
-                    />
-                </label>
-                <button
-                    disabled={status === "loading"}
-                    className="w-full rounded-lg bg-black px-4 py-2 text-white disabled:opacity-60"
-                >
-                    {status === "loading" ? "Enviando..." : "Enviar Enlace de Restablecimiento"}
-                </button>
+        {/* Mostrar mensaje de éxito */}
+        {isSuccess && (
+          <div
+            className="rounded-md border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700"
+            role="status"
+            data-testid="success-message"
+          >
+            Si existe una cuenta con ese correo, se ha enviado un enlace para
+            restablecer tu contraseña. Por favor, revisa tu bandeja de entrada.
+          </div>
+        )}
 
-                {
-                    message && (
-                        <p className={
-                            status === "error" ? "text-sm text-red-600" : "text-sm text-green-600"
-                        }>
-                            {message}
-                        </p>
-                    )
-                }
-                
-            </form>
-        </main>
-    )
+        <div className="text-center text-sm text-ui-fg-subtle">
+          <LocalizedClientLink
+            href="/account"
+            className="text-ui-fg-interactive hover:text-ui-fg-interactive-hover underline"
+          >
+            Volver al inicio de sesión
+          </LocalizedClientLink>
+        </div>
+      </form>
+    </main>
+  )
 }

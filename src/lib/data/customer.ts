@@ -259,3 +259,89 @@ export const updateCustomerAddress = async (
       return { success: false, error: err.toString() }
     })
 }
+
+export async function requestPasswordReset(
+  _currentState: unknown,
+  formData: FormData
+){
+  const email = formData.get("email") as string
+
+  if (!email) {
+    return "El correo es obligatorio."
+  }
+
+  // Validación básica de email
+  const emailRegex = /\S+@\S+\.\S+/
+  if (!emailRegex.test(email)) {
+    return "Ingresa un correo electrónico válido."
+  }
+
+  try {
+    // Llamada al endpoint de Medusa para solicitar reset de contraseña
+    await sdk.auth.resetPassword("customer", "emailpass", {
+      identifier: email.trim(),
+    })
+
+    // Por seguridad, siempre retornamos el mismo mensaje
+    // No revelamos si el email existe o no
+    return null // null significa éxito sin errores
+  } catch (error: any) {
+    console.error("Error requesting password reset:", error)
+    
+    // Por seguridad, no revelamos detalles del error
+    // Siempre mostramos que se envió el email
+    return null
+  }
+}
+
+
+export async function updatePassword(
+  _currentState: unknown,
+  formData: FormData    
+) {
+  const token = formData.get("token") as string
+  const email = formData.get("email") as string
+  const password = formData.get("password") as string
+  const confirmPassword = formData.get("confirm_password") as string
+
+  // Validaciones básicas
+  if (!token || !email || !password || !confirmPassword) {
+    return "Todos los campos son obligatorios."
+  }
+
+  if (password !== confirmPassword) {
+    return "Las contraseñas no coinciden."
+  }
+
+  if (password.length < 8) {
+    return "La contraseña debe tener al menos 8 caracteres."
+  }
+
+  try {
+    // Llamar directamente al endpoint de actualización de contraseña
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000"}/auth/customer/emailpass/update`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          password: password,
+        }),
+      }
+    )
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}))
+      console.error("Error response:", errorData)
+      throw new Error(errorData.message || "Error al actualizar la contraseña")
+    }
+
+    return null // null significa éxito
+  } catch (error: any) {
+    console.error("Error updating password:", error)
+    return "No se pudo restablecer la contraseña. El enlace puede haber expirado o ser inválido."
+  }
+}
