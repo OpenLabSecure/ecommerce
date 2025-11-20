@@ -7,6 +7,65 @@ import { SortOptions } from "@modules/store/components/refinement-list/sort-prod
 import { getAuthHeaders, getCacheOptions } from "./cookies"
 import { getRegion, retrieveRegion } from "./regions"
 
+export const retrievePricedProductById = async ({
+  id,
+  regionId,
+}: {
+  id: string
+  regionId: string
+}) => {
+  const headers = {
+    ...(await getAuthHeaders()),
+  }
+
+  const next = {
+    ...(await getCacheOptions("products")),
+  }
+
+  return sdk.client
+    .fetch<{ product: HttpTypes.StoreProduct }>(
+      `/store/products/${id}`,
+      {
+        query: {
+          region_id: regionId,
+          // 👇 AGREGAMOS ESTOS FIELDS PARA OBTENER TODOS LOS PRECIOS
+          fields: "*variants.calculated_price,*variants.prices,*variants.inventory_quantity",
+        },
+        headers,
+        next,
+        cache: "force-cache",
+      }
+    )
+    .then(({ product }) => product)
+}
+
+export const getProductByHandle = async (
+  handle: string,
+  regionId: string
+): Promise<HttpTypes.StoreProduct> => {
+  const headers = {
+    ...(await getAuthHeaders()),
+  }
+
+  const next = {
+    ...(await getCacheOptions("products")),
+  }
+
+  return sdk.client
+    .fetch<HttpTypes.StoreProductListResponse>(`/store/products`, {
+      query: {
+        handle,
+        region_id: regionId,
+        // 👇 AGREGAMOS ESTOS FIELDS PARA OBTENER TODOS LOS PRECIOS
+        fields: "*variants.calculated_price,*variants.prices,*variants.inventory_quantity",
+      },
+      headers,
+      next,
+      cache: "force-cache",
+    })
+    .then(({ products }) => products[0])
+}
+
 export const listProducts = async ({
   pageParam = 1,
   queryParams,
@@ -66,7 +125,7 @@ export const listProducts = async ({
           offset,
           region_id: region?.id,
           fields:
-            "*variants.calculated_price,+variants.inventory_quantity,+metadata,+tags",
+            "*variants.calculated_price,*variants.prices,+variants.inventory_quantity,+metadata,+tags",
           ...queryParams,
         },
         headers,
@@ -200,7 +259,7 @@ export const searchProducts = async ({
     offset,
     region_id: region.id,
     fields:
-      "*variants.calculated_price,+variants.inventory_quantity,+metadata,+tags",
+      "*variants.calculated_price,*variants.prices,+variants.inventory_quantity,+metadata,+tags",
   }
 
   console.log("🔍 Búsqueda con parámetros:", queryParams)

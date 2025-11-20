@@ -11,6 +11,7 @@ import { useParams } from "next/navigation"
 import { useEffect, useMemo, useRef, useState } from "react"
 import ProductPrice from "../product-price"
 import MobileActions from "./mobile-actions"
+import ProductSku from "../product-sku"
 
 type ProductActionsProps = {
   product: HttpTypes.StoreProduct
@@ -137,7 +138,7 @@ export default function ProductActions({
             </div>
           )}
         </div>
-
+        <ProductSku product={product} variant={selectedVariant} />
         <ProductPrice product={product} variant={selectedVariant} />
 
         <Button
