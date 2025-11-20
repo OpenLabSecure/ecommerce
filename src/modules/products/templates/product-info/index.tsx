@@ -1,6 +1,7 @@
 import { HttpTypes } from "@medusajs/types"
 import { Heading, Text } from "@medusajs/ui"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
+//import StockIndicator from "@modules/products/components/stock-indicator"
 
 type ProductInfoProps = {
   product: HttpTypes.StoreProduct
@@ -12,7 +13,8 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
 
   // Extraer la marca de la metadata
   const brand = product.metadata?.marca as string | undefined
-
+  const aboutProduct = product.metadata?.acerca_del_producto as string | undefined
+  const firstVariant = product.variants?.[0]
   return (
     <div id="product-info">
       <div className="flex flex-col gap-y-4 lg:max-w-[500px] mx-auto">
@@ -39,12 +41,21 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
         >
           {product.title}
         </Heading>
-
+         {/* Indicador de Stock
+        {firstVariant && (
+          <StockIndicator 
+            variant={firstVariant} 
+            showQuantity={true}
+          />
+        )} */}
+        
+        {/* Acerca del producto */}
         <Text
           className="text-medium text-ui-fg-subtle whitespace-pre-line"
           data-testid="product-description"
         >
-          {product.description}
+          Acerca del producto:
+          {aboutProduct}
         </Text>
       </div>
     </div>

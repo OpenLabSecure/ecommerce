@@ -12,6 +12,7 @@ import { useEffect, useMemo, useRef, useState } from "react"
 import ProductPrice from "../product-price"
 import MobileActions from "./mobile-actions"
 import ProductSku from "../product-sku"
+// import StockIndicator from "../stock-indicator"
 
 type ProductActionsProps = {
   product: HttpTypes.StoreProduct
@@ -34,6 +35,7 @@ export default function ProductActions({
 }: ProductActionsProps) {
   const [options, setOptions] = useState<Record<string, string | undefined>>({})
   const [isAdding, setIsAdding] = useState(false)
+  const [quantity, setQuantity] = useState(1) 
   const countryCode = useParams().countryCode as string
 
   // If there is only 1 variant, preselect the options
@@ -62,6 +64,8 @@ export default function ProductActions({
       [optionId]: value,
     }))
   }
+  
+  
 
   //check if the selected options produce a valid variant
   const isValidVariant = useMemo(() => {
@@ -107,14 +111,17 @@ export default function ProductActions({
 
     await addToCart({
       variantId: selectedVariant.id,
-      quantity: 1,
+      quantity: quantity,
       countryCode,
     })
 
     setIsAdding(false)
+    setQuantity(1)
   }
 
-  return (
+  
+
+ return (
     <>
       <div className="flex flex-col gap-y-2" ref={actionsRef}>
         <div>
@@ -138,8 +145,53 @@ export default function ProductActions({
             </div>
           )}
         </div>
-        <ProductSku product={product} variant={selectedVariant} />
+
         <ProductPrice product={product} variant={selectedVariant} />
+
+        {/* 👇 Selector de cantidad */}
+        <div className="flex items-center gap-4">
+          <span className="text-sm font-medium">Cantidad:</span>
+          <div className="flex items-center border border-gray-300 rounded-lg">
+            <button
+              onClick={() => setQuantity(Math.max(1, quantity - 1))}
+              disabled={quantity <= 1 || isAdding || disabled}
+              className="px-3 py-2 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+              aria-label="Disminuir cantidad"
+            >
+              −
+            </button>
+            <input
+              type="number"
+              min="1"
+              max={selectedVariant?.manage_inventory ? selectedVariant?.inventory_quantity || 999 : 999}
+              value={quantity}
+              onChange={(e) => {
+                const value = parseInt(e.target.value) || 1
+                setQuantity(Math.max(1, value))
+              }}
+              disabled={isAdding || disabled}
+              className="w-12 text-center border-0 focus:outline-none disabled:opacity-50"
+              aria-label="Cantidad de productos"
+            />
+            <button
+              onClick={() => {
+                const max = selectedVariant?.manage_inventory 
+                  ? selectedVariant?.inventory_quantity || 999 
+                  : 999
+                setQuantity(Math.min(max, quantity + 1))
+              }}
+              disabled={
+                quantity >= (selectedVariant?.manage_inventory 
+                  ? selectedVariant?.inventory_quantity || 999 
+                  : 999) || isAdding || disabled
+              }
+              className="px-3 py-2 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+              aria-label="Aumentar cantidad"
+            >
+              +
+            </button>
+          </div>
+        </div>
 
         <Button
           onClick={handleAddToCart}
@@ -159,7 +211,7 @@ export default function ProductActions({
             ? "Select variant"
             : !inStock || !isValidVariant
             ? "Out of stock"
-            : "Add to cart"}
+            : `Agregar ${quantity} al carrito`}
         </Button>
         <MobileActions
           product={product}
