@@ -10,6 +10,7 @@ import SkeletonRelatedProducts from "@modules/skeletons/templates/skeleton-relat
 import { notFound } from "next/navigation"
 import ProductActionsWrapper from "./product-actions-wrapper"
 import { HttpTypes } from "@medusajs/types"
+import ProductSpecifications from "../components/product-specifications"
 
 type ProductTemplateProps = {
   product: HttpTypes.StoreProduct
@@ -95,6 +96,8 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
             </section>
           </div>
         </div>
+
+        <ProductSpecifications product={product} />
       </div>
 
       {/* Related Products Section */}
