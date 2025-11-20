@@ -7,6 +7,12 @@ type ProductInfoProps = {
 }
 
 const ProductInfo = ({ product }: ProductInfoProps) => {
+
+  console.log("product", product)
+
+  // Extraer la marca de la metadata
+  const brand = product.metadata?.marca as string | undefined
+
   return (
     <div id="product-info">
       <div className="flex flex-col gap-y-4 lg:max-w-[500px] mx-auto">
@@ -17,6 +23,14 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
           >
             {product.collection.title}
           </LocalizedClientLink>
+        )}
+        {/* Marca del equipo */}
+        {brand && (
+          <div className="flex items-center gap-2">
+            <Text className="text-sm font-semibold text-ui-fg-subtle uppercase tracking-wide">
+              {brand}
+            </Text>
+          </div>
         )}
         <Heading
           level="h2"
