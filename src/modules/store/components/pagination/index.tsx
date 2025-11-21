@@ -2,32 +2,32 @@
 
 import { clx } from "@medusajs/ui"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { ChevronLeft, ChevronRight } from "lucide-react"
 
 export function Pagination({
   page,
   totalPages,
-  'data-testid': dataTestid
+  'data-testid': dataTestid,
+  showInfo = true,
 }: {
   page: number
   totalPages: number
   'data-testid'?: string
+  showInfo?: boolean
 }) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
-  // Helper function to generate an array of numbers within a range
   const arrayRange = (start: number, stop: number) =>
     Array.from({ length: stop - start + 1 }, (_, index) => start + index)
 
-  // Function to handle page changes
   const handlePageChange = (newPage: number) => {
     const params = new URLSearchParams(searchParams)
     params.set("page", newPage.toString())
     router.push(`${pathname}?${params.toString()}`)
   }
 
-  // Function to render a page button
   const renderPageButton = (
     p: number,
     label: string | number,
@@ -35,41 +35,43 @@ export function Pagination({
   ) => (
     <button
       key={p}
-      className={clx("txt-xlarge-plus text-ui-fg-muted", {
-        "text-ui-fg-base hover:text-ui-fg-subtle": isCurrent,
-      })}
+      className={clx(
+        "px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200",
+        {
+          "bg-blue-600 text-white shadow-md hover:bg-blue-700": isCurrent,
+          "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800": !isCurrent,
+        }
+      )}
       disabled={isCurrent}
       onClick={() => handlePageChange(p)}
+      aria-label={`Ir a página ${p}`}
+      aria-current={isCurrent ? "page" : undefined}
     >
       {label}
     </button>
   )
 
-  // Function to render ellipsis
   const renderEllipsis = (key: string) => (
     <span
       key={key}
-      className="txt-xlarge-plus text-ui-fg-muted items-center cursor-default"
+      className="px-2 py-2 text-gray-400 dark:text-gray-600"
+      aria-hidden="true"
     >
-      ...
+      ⋯
     </span>
   )
 
-  // Function to render page buttons based on the current page and total pages
   const renderPageButtons = () => {
     const buttons = []
 
     if (totalPages <= 7) {
-      // Show all pages
       buttons.push(
         ...arrayRange(1, totalPages).map((p) =>
           renderPageButton(p, p, p === page)
         )
       )
     } else {
-      // Handle different cases for displaying pages and ellipses
       if (page <= 4) {
-        // Show 1, 2, 3, 4, 5, ..., lastpage
         buttons.push(
           ...arrayRange(1, 5).map((p) => renderPageButton(p, p, p === page))
         )
@@ -78,7 +80,6 @@ export function Pagination({
           renderPageButton(totalPages, totalPages, totalPages === page)
         )
       } else if (page >= totalPages - 3) {
-        // Show 1, ..., lastpage - 4, lastpage - 3, lastpage - 2, lastpage - 1, lastpage
         buttons.push(renderPageButton(1, 1, 1 === page))
         buttons.push(renderEllipsis("ellipsis2"))
         buttons.push(
@@ -87,7 +88,6 @@ export function Pagination({
           )
         )
       } else {
-        // Show 1, ..., page - 1, page, page + 1, ..., lastpage
         buttons.push(renderPageButton(1, 1, 1 === page))
         buttons.push(renderEllipsis("ellipsis3"))
         buttons.push(
@@ -105,10 +105,63 @@ export function Pagination({
     return buttons
   }
 
-  // Render the component
+  const handlePrevious = () => {
+    if (page > 1) handlePageChange(page - 1)
+  }
+
+  const handleNext = () => {
+    if (page < totalPages) handlePageChange(page + 1)
+  }
+
   return (
-    <div className="flex justify-center w-full mt-12">
-      <div className="flex gap-3 items-end" data-testid={dataTestid}>{renderPageButtons()}</div>
+    <div className="flex flex-col items-center gap-4 mt-12 py-8" data-testid={dataTestid}>
+      {/* Información de paginación */}
+      {/* {showInfo && (
+        <div className="text-sm text-gray-600 dark:text-gray-400">
+          Página <span className="font-semibold text-gray-900 dark:text-white">{page}</span> de{" "}
+          <span className="font-semibold text-gray-900 dark:text-white">{totalPages}</span>
+        </div>
+      )} */}
+
+      {/* Controles de paginación */}
+      <div className="flex items-center gap-2">
+        {/* Botón Anterior */}
+        <button
+          onClick={handlePrevious}
+          disabled={page === 1}
+          className={clx(
+            "p-2 rounded-lg transition-all duration-200",
+            {
+              "text-gray-400 dark:text-gray-600 cursor-not-allowed": page === 1,
+              "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800": page > 1,
+            }
+          )}
+          aria-label="Página anterior"
+        >
+          <ChevronLeft size={20} />
+        </button>
+
+        {/* Números de página */}
+        <div className="flex gap-1" role="navigation" aria-label="Paginación">
+          {renderPageButtons()}
+        </div>
+
+        {/* Botón Siguiente */}
+        <button
+          onClick={handleNext}
+          disabled={page === totalPages}
+          className={clx(
+            "p-2 rounded-lg transition-all duration-200",
+            {
+              "text-gray-400 dark:text-gray-600 cursor-not-allowed": page === totalPages,
+              "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800": page < totalPages,
+            }
+          )}
+          aria-label="Página siguiente"
+        >
+          <ChevronRight size={20} />
+        </button>
+      </div>
     </div>
   )
 }

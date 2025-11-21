@@ -66,7 +66,8 @@ export default async function SearchResults({
       order_by: orderBy,
       sort,
     })
-
+    
+      const totalPages = metadata.total_pages || 0
     if (products.length === 0) {
       return (
         <div className="flex flex-col items-center justify-center py-16 text-center">
@@ -132,15 +133,13 @@ export default async function SearchResults({
           ))}
         </ul>
 
-        {/* Paginación */}
-        {metadata.total_pages > 1 && (
-          <div className="mt-8">
-            <Pagination 
-              page={metadata.page} 
-              totalPages={metadata.total_pages}
-            />
-          </div>
-        )}
+        {totalPages > 1 && (
+        <Pagination
+          data-testid="product-pagination"
+          page={page}
+          totalPages={totalPages}
+        />
+      )}
       </>
     )
   } catch (error) {
