@@ -7,7 +7,7 @@ import { Button } from "@medusajs/ui"
 import { useElements, useStripe } from "@stripe/react-stripe-js"
 import React, { useState } from "react"
 import ErrorMessage from "../error-message"
-import { ShoppingBag, CreditCard, Lock } from "lucide-react"
+import { ShoppingBag, CreditCard, Lock, ExternalLink } from "lucide-react"
 
 type PaymentButtonProps = {
   cart: HttpTypes.StoreCart
@@ -27,10 +27,16 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
     !cart.email ||
     (cart.shipping_methods?.length ?? 0) < 1
 
-  const paymentSession = cart.payment_collection?.payment_sessions?.[0]
+  // Obtenemos la sesión de pago activa
+  // Nota: En v2 a veces está en payment_collection, asegúrate de que esto traiga datos
+  const paymentSession = cart.payment_collection?.payment_sessions?.find(
+    (s) => s.status === "pending"
+  ) || cart.payment_collection?.payment_sessions?.[0]
+
+  const providerId = paymentSession?.provider_id
 
   switch (true) {
-    case isStripe(paymentSession?.provider_id):
+    case isStripe(providerId):
       return (
         <StripePaymentButton
           notReady={notReady}
@@ -39,10 +45,20 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
           className={className}
         />
       )
-    case isManual(paymentSession?.provider_id):
+    case isManual(providerId):
       return (
         <ManualTestPaymentButton 
           notReady={notReady} 
+          data-testid={dataTestId}
+          className={className}
+        />
+      )
+    // CASO NUEVO: MERCADO PAGO
+    case providerId === 'pp_mercadopago_mercadopago':
+      return (
+        <MercadoPagoPaymentButton
+          notReady={notReady}
+          cart={cart}
           data-testid={dataTestId}
           className={className}
         />
@@ -59,6 +75,84 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
         </Button>
       )
   }
+}
+
+//Componente dedicado para Mercado Pago
+const MercadoPagoPaymentButton = ({
+  cart,
+  notReady,
+  "data-testid": dataTestId,
+  className,
+}: {
+  cart: HttpTypes.StoreCart
+  notReady: boolean
+  "data-testid"?: string
+  className?: string
+}) => {
+  const [submitting, setSubmitting] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+
+  const handlePayment = () => {
+    setSubmitting(true)
+    setErrorMessage(null)
+
+    const session = cart.payment_collection?.payment_sessions?.find(
+        (s) => s.provider_id === 'pp_mercadopago_mercadopago'
+    )
+
+    if (!session) {
+        setErrorMessage("No se encontró la sesión de Mercado Pago")
+        setSubmitting(false)
+        return
+    }
+
+    const initPoint = session.data.init_point as string
+
+    if (initPoint) {
+        console.log("Redirigiendo a Mercado Pago:", initPoint)
+        window.location.href = initPoint
+    } else {
+        setErrorMessage("Error: No se recibió el link de pago desde el servidor.")
+        setSubmitting(false)
+    }
+  }
+
+  return (
+    <div className="space-y-4">
+      <Button
+        disabled={notReady}
+        onClick={handlePayment}
+        size="large"
+        isLoading={submitting}
+        data-testid={dataTestId}
+        className={`w-full h-12 small:h-14 text-base small:text-lg font-semibold bg-blue-500 hover:bg-blue-600 text-white transition-all duration-200 shadow-md hover:shadow-lg ${className || ''}`}
+      >
+        {!submitting && (
+          <>
+            <ExternalLink className="mr-2" size={20} />
+            <span>Pagar con Mercado Pago</span>
+          </>
+        )}
+        {submitting && <span>Redirigiendo...</span>}
+      </Button>
+      
+      {errorMessage && (
+        <div className="animate-in slide-in-from-top-2 duration-300">
+          <ErrorMessage
+            error={errorMessage}
+            data-testid="mp-payment-error-message"
+          />
+        </div>
+      )}
+       {!errorMessage && (
+        <div className="flex items-center justify-center gap-2 pt-2">
+            <span className="text-xs small:text-sm text-gray-500 font-medium">
+              Serás redirigido a Mercado Pago para completar la compra de forma segura.
+            </span>
+        </div>
+      )}
+    </div>
+  )
 }
 
 const StripePaymentButton = ({
@@ -164,7 +258,7 @@ const StripePaymentButton = ({
         {!submitting && (
           <>
             <CreditCard className="mr-2" size={20} />
-            <span>Realizar pedido</span>
+            <span>Pagar con Tarjeta</span>
           </>
         )}
         {submitting && <span>Procesando pago...</span>}
@@ -176,21 +270,6 @@ const StripePaymentButton = ({
             error={errorMessage}
             data-testid="stripe-payment-error-message"
           />
-        </div>
-      )}
-
-      {/* Security badges */}
-      {!errorMessage && (
-        <div className="flex flex-wrap items-center justify-center gap-3 small:gap-4 pt-2">
-          <div className="flex items-center gap-1.5 text-xs small:text-sm text-ui-fg-muted">
-            <Lock size={14} className="text-green-600" />
-            <span>Pago seguro SSL</span>
-          </div>
-          <div className="hidden small:block w-px h-4 bg-ui-border-base" />
-          <div className="flex items-center gap-1.5 text-xs small:text-sm text-ui-fg-muted">
-            <CreditCard size={14} className="text-blue-600" />
-            <span>Stripe protegido</span>
-          </div>
         </div>
       )}
     </div>
@@ -237,7 +316,7 @@ const ManualTestPaymentButton = ({
         {!submitting && (
           <>
             <ShoppingBag className="mr-2" size={20} />
-            <span>Realizar pedido</span>
+            <span>Realizar pedido (Manual)</span>
           </>
         )}
         {submitting && <span>Procesando pedido...</span>}
@@ -249,17 +328,6 @@ const ManualTestPaymentButton = ({
             error={errorMessage}
             data-testid="manual-payment-error-message"
           />
-        </div>
-      )}
-
-      {/* Test mode indicator */}
-      {!errorMessage && (
-        <div className="flex items-center justify-center gap-2 pt-2">
-          <div className="px-3 py-1.5 bg-yellow-50 border border-yellow-200 rounded-full">
-            <span className="text-xs small:text-sm text-yellow-800 font-medium">
-              🧪 Modo de prueba
-            </span>
-          </div>
         </div>
       )}
     </div>
