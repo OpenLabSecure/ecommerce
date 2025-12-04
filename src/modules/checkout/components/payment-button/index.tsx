@@ -96,12 +96,14 @@ const MercadoPagoPaymentButton = ({
     setSubmitting(true)
     setErrorMessage(null)
 
+   // Opción más segura: Busca cualquiera que incluya "mercadopago"
     const session = cart.payment_collection?.payment_sessions?.find(
-        (s) => s.provider_id === 'pp_mercadopago_mercadopago'
+        (s) => s.provider_id.includes('mercadopago')
     )
 
     if (!session) {
         setErrorMessage("No se encontró la sesión de Mercado Pago")
+        console.error("IDs encontrados:", cart.payment_collection?.payment_sessions?.map(s => s.provider_id))
         setSubmitting(false)
         return
     }
