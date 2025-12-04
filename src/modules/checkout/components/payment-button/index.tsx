@@ -54,7 +54,7 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
         />
       )
     // CASO NUEVO: MERCADO PAGO
-    case providerId === 'pp_mercadopago_pp_mercadopago':
+    case providerId === 'pp_mercadopago_mercadopago':
       return (
         <MercadoPagoPaymentButton
           notReady={notReady}
